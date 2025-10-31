@@ -5,4 +5,4 @@ _pycache__/
 # Accidental command files
 "eval \"$(ssh-agent -s)\""
 "eval \"$(ssh-agent -s)\".pub"
-
+outputs/ssmbottleneck_autoencoder.pth
