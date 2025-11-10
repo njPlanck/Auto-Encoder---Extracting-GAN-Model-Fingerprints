@@ -6,9 +6,9 @@ from PIL import Image
 from xception_dcnn import BottleneckAutoencoder  # same class as in training
 
 # ---------------- CONFIG ---------------- #
-model_path = "/home/chinasa/python_projects/denoising/images/idiap/spoofed/bottleneck_autoencoder.pth"
-input_root = "/home/chinasa/python_projects/denoising/images/idiap/synthetic"
-output_root = "/home/chinasa/python_projects/denoising/images/aedenoised"
+model_path = "/home/chinasa/python_projects/auto_encoder/outputs/ssmbottleneck_autoencoder2.pth"
+input_root = "/home/chinasa/python_projects/denoising/images/idiap/synthetic/"
+output_root = "/home/chinasa/python_projects/auto_encoder/outputs/images/idiap/"
 use_gpu = torch.cuda.is_available()
 device = torch.device("cuda" if use_gpu else "cpu")
 print(f"Using device: {device}")

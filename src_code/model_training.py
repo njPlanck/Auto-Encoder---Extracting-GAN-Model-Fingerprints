@@ -11,7 +11,7 @@ import torch.nn.functional as F
 
 from xception_dcnn import BottleneckAutoencoder 
 
-# --------------------- CONFIG --------------------- #
+
 # Loss weighting factors
 lambda_l1 = 0.4  # Weight for the L1 (pixel-wise) loss
 lambda_ssim = 0.6 # Weight for the 1-MS_SSIM (structural) loss
@@ -22,33 +22,32 @@ print(f"Using device: {device}")
 
 data_dir = "/home/chinasa/python_projects/denoising/images/idiap/spoofed"
 
-# 1. Define the safe, isolated output root first
+# Define the safe, isolated output root first
 output_root = "/home/chinasa/python_projects/auto_encoder/outputs"
 os.makedirs(output_root, exist_ok=True)
 
-# 2. Define the model save path INSIDE the isolated output root
+# Define the model save path inisde the isolated output root
 save_path = os.path.join(output_root, "ssmbottleneck_autoencoder2.pth")
 
-# 3. Define the sample directory INSIDE the isolated output root
-#    Use output_root directly for consistency
+# Define the sample directory INSIDE the isolated output root
+#Use output_root directly for consistency
 sample_dir = os.path.join(output_root, 'reconstruction_samples2')
 os.makedirs(sample_dir, exist_ok=True)
 
 sample_interval = 5
 
 batch_size = 2
-epochs = 100 
-lr = 1e-5 
+epochs = 100
+lr = 1e-5
 weight_decay = 1e-5
-patience = 5 
+patience = 5
 
 
-# --------------------- DATASET --------------------- #
+# DATASET
 transform = transforms.Compose([
     transforms.Grayscale(num_output_channels=1),
     transforms.RandomHorizontalFlip(),
     transforms.RandomRotation(10),
-    #transforms.ColorJitter(0.05, 0.05),
     transforms.ToTensor(),
     transforms.Normalize([0.5], [0.5])
 ])
@@ -61,9 +60,8 @@ train_ds, val_ds = random_split(dataset, [train_size, val_size])
 train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True, num_workers=2)
 val_loader = DataLoader(val_ds, batch_size=batch_size, shuffle=False, num_workers=2)
 
-# --------------------- MODEL --------------------- #
-# and a name that reflects the new purpose.
-bottleneck_size = 3000 # You can reduce this size (e.g., 512, 256) to increase the bottleneck effect
+
+bottleneck_size = 3000
 
 model = BottleneckAutoencoder(bottleneck_features=bottleneck_size, out_ch=1).to(device)
 l1_criterion = nn.L1Loss() # reconstruction loss
@@ -71,19 +69,18 @@ ssim_criterion = MS_SSIM(data_range=2.0, size_average=True, channel=1)
 optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
 scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=3)
 
-# --------------------- TRAINING --------------------- #
+#training
 best_val_loss = float('inf')
 epochs_no_improve = 0
 best_model_wts = None
 
 # Get a fixed batch of images for visualization
-fixed_batch = next(iter(val_loader)) 
+fixed_batch = next(iter(val_loader))
 fixed_imgs, _ = fixed_batch
 fixed_imgs = fixed_imgs.to(device)
 
 
 for epoch in range(epochs):
-    # --- Train ---
     model.train()
     train_loss = 0.0
     for imgs, _ in train_loader:
@@ -99,7 +96,7 @@ for epoch in range(epochs):
         train_loss += loss.item() * imgs.size(0)
     train_loss /= len(train_loader.dataset)
 
-    # --- Validation ---
+    #validation
     model.eval()
     val_loss = 0.0
     with torch.no_grad():
