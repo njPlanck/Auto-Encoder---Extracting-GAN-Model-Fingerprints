@@ -7,6 +7,12 @@ This was problematic because even though the classifier could distinguish real a
 Earlier we had tried to remove these artifacts using spatial filtering technigues by treating these model fingerprints as Photo Response Non-Uniformity(PRNU) pattern noise. But this has not been very helpful. It is observed these filters only captured the high frequency noise and ignored the low frequency components, such that suppression was minimal and not enough to effectively fool the classifier during detection.
 
 
-The design of the encoder structure leverages on the Xception network's structure for its feature extraction capabilites to train a model only on real finger vein images. Like the paper hypothesizes, these fingerprints can be removed by this autoencoder, which acts as a non-linear low-pass filter... 
+# Encoder Structure 
 
+The design of the encoder structure leverages on the Xception network's structure for its feature extraction capabilites to train a model only on real finger vein images. Like the Neves et al hypothesizes, these fingerprints can be removed by this autoencoder, which acts as a non-linear low-pass filter.
 
+![encoderstrcutre](imgs/image.png)
+
+# Input And Resulting Output From The Encoder Structure
+
+![ioencoder](imgs/image1.png)
