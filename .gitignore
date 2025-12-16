@@ -11,4 +11,5 @@ outputs/plus_fingerprint_denoiser.pth
 outputs/scut_fingerprint_denoiser.pth
 outputs/scut_fingerprint_denoiser2.pth
 outputs/fingerprint_denoiser.pth
-
+src_code/haralick_feat_ext.py
+src_code/SSIM.py
