@@ -15,4 +15,4 @@ The design of the encoder structure leverages on the Xception network's structur
 
 # Input And Resulting Output From The Encoder Structure
 
-![ioencoder](imgs/image1.png)
+![ioencoder](imgs/image2.png)
