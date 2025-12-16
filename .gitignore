@@ -1,4 +1,3 @@
-dataset/
 _pycache__/
 *.pyc
 
@@ -6,4 +5,10 @@ _pycache__/
 "eval \"$(ssh-agent -s)\""
 "eval \"$(ssh-agent -s)\".pub"
 outputs/ssmbottleneck_autoencoder.pth
-outputs/
+outputs/images/
+outputs/samples/
+outputs/plus_fingerprint_denoiser.pth
+outputs/scut_fingerprint_denoiser.pth
+outputs/scut_fingerprint_denoiser2.pth
+outputs/fingerprint_denoiser.pth
+

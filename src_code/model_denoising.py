@@ -1,77 +1,78 @@
 import os
 import torch
+import torch.nn as nn
+import torch.nn.functional as F
 from torchvision import transforms
 from torchvision.utils import save_image
 from PIL import Image
-from xception_dcnn import BottleneckAutoencoder  # same class as in training
+from auto_encoder import FingerprintDenoisingAE
 
-# ---------------- CONFIG ---------------- #
-model_path = "/home/chinasa/python_projects/auto_encoder/outputs/ssmbottleneck_autoencoder2.pth"
-input_root = "/home/chinasa/python_projects/denoising/images/idiap/synthetic/"
-output_root = "/home/chinasa/python_projects/auto_encoder/outputs/images/idiap/"
+model_path = "/home/chinasa/python_projects/auto_encoder/outputs/scut_fingerprint_denoiser.pth"
+input_root = "/home/chinasa/python_projects/denoising/images/scut/synthetic/"
+output_root = "/home/chinasa/python_projects/auto_encoder/outputs/images/scut/"
+
 use_gpu = torch.cuda.is_available()
 device = torch.device("cuda" if use_gpu else "cpu")
 print(f"Using device: {device}")
 
-# ---------------- TRANSFORMS ---------------- #
+
 transform = transforms.Compose([
     transforms.Grayscale(num_output_channels=1),
     transforms.ToTensor(),
-    transforms.Normalize([0.5], [0.5])
+    transforms.Normalize([0.5], [0.5]) # Normalize [-1, 1]
 ])
 
 def denormalize(tensor):
-    """Reverse normalization from [-1, 1] → [0, 1]"""
+    """Reverse normalization from [-1, 1] -> [0, 1] for saving"""
     return tensor * 0.5 + 0.5
 
-# ---------------- AUTO-DETECT BOTTLENECK SIZE ---------------- #
-checkpoint = torch.load(model_path, map_location=device)
-if "bottleneck.2.weight" in checkpoint:
-    bottleneck_size = checkpoint["bottleneck.2.weight"].shape[0]
-else:
-    bottleneck_size = list(checkpoint.values())[0].shape[0]
-print(f"🔍 Detected bottleneck size: {bottleneck_size}")
+#load model
+print("Loading model...")
 
-# ---------------- LOAD MODEL ---------------- #
-model = BottleneckAutoencoder(bottleneck_features=bottleneck_size, out_ch=1).to(device)
+model = FingerprintDenoisingAE().to(device)
+
+# Load weights
+checkpoint = torch.load(model_path, map_location=device)
 model.load_state_dict(checkpoint)
 model.eval()
-print("✅ Model loaded successfully.")
+print("Model loaded successfully.")
 
-# ---------------- PROCESS SUBFOLDERS ---------------- #
 valid_exts = (".png", ".jpg", ".jpeg", ".bmp", ".tiff")
 
+# Ensure output root exists
+os.makedirs(output_root, exist_ok=True)
+
 with torch.no_grad():
-    # Loop through GAN subfolders (cycleGAN, distanceGAN, etc.)
-    for subfolder in sorted(os.listdir(input_root)):
-        input_dir = os.path.join(input_root, subfolder)
-        if not os.path.isdir(input_dir):
-            continue  # skip non-folder files
-
-        output_dir = os.path.join(output_root, subfolder)
-        os.makedirs(output_dir, exist_ok=True)
-
-        print(f"\n🚀 Processing folder: {subfolder}")
-
-        # Process all images in this subfolder
-        for filename in os.listdir(input_dir):
+    for root, dirs, files in os.walk(input_root):
+        for filename in files:
             if not filename.lower().endswith(valid_exts):
                 continue
-
-            input_path = os.path.join(input_dir, filename)
+            
+            # Construct input path
+            input_path = os.path.join(root, filename)
+            
+            # Construct output path 
+            relative_path = os.path.relpath(root, input_root)
+            output_dir = os.path.join(output_root, relative_path)
+            os.makedirs(output_dir, exist_ok=True)
             output_path = os.path.join(output_dir, filename)
 
-            # Load and preprocess image
-            img = Image.open(input_path).convert("RGB")
-            img_tensor = transform(img).unsqueeze(0).to(device)
+            # Load and Preprocess
+            try:
+                # Open as RGB, Transform will convert to Grayscale(1)
+                img = Image.open(input_path).convert("RGB") 
+                img_tensor = transform(img).unsqueeze(0).to(device)
 
-            # Forward pass
-            output_tensor = model(img_tensor)
+                # Denoise
+                output_tensor = model(img_tensor)
 
-            # Denormalize and save
-            output_img = denormalize(output_tensor.squeeze(0))
-            save_image(output_img, output_path)
+                # Save
+                output_img = denormalize(output_tensor.squeeze(0))
+                save_image(output_img, output_path)
 
-            print(f"  ✅ Denoised: {subfolder}/{filename}")
+                print(f"Denoised: {relative_path}/{filename}")
+            
+            except Exception as e:
+                print(f"Error processing {filename}: {e}")
 
-print("\n🎉 All images denoised and saved successfully, preserving folder structure!")
+print(f"\n Processing complete! Results saved in: {output_root}")
