@@ -48,10 +48,10 @@ def load_images_and_extract_features(file_paths, label, num_bands=30, slice_rang
     return data
 # Main execution
 if __name__ == "__main__":
-    real_folder = glob.glob(r'/home/chinasa/python_projects/denoising/images/idiap/genuine/**/*.png', recursive=True)
-    fake_folder = glob.glob(r'/home/chinasa/python_projects/denoising/images/idiap/spoofed/**/*.png', recursive=True)
-    #synthetic_folder = glob.glob(r'/home/chinasa/python_projects/denoising/images/scut/synthetic/starGAN/*.png',recursive=True)  # Adjust path to noisy
-    synthetic_folder = glob.glob(r'/home/chinasa/python_projects/auto_encoder/outputs/images/idiap2/dritGAN/*.png',recursive=True)  # Adjust path to cleaned
+    real_folder = glob.glob(r'/home/chinasa/python_projects/denoising/images/plus/genuine/*.png', recursive=True)
+    fake_folder = glob.glob(r'/home/chinasa/python_projects/denoising/images/plus/spoofed/*.png', recursive=True)
+    synthetic_folder = glob.glob(r'/home/chinasa/python_projects/denoising/images/plus/synthetic/starGAN/*.png',recursive=True)  # Adjust path to noisy
+    #synthetic_folder = glob.glob(r'/home/chinasa/python_projects/auto_encoder/outputs/images/idiap2/cycleGAN/*.png',recursive=True)  # Adjust path to cleaned
     
 
     data_real = load_images_and_extract_features(real_folder, label=1)
@@ -68,15 +68,15 @@ if __name__ == "__main__":
     print("First few rows:\n", df.head())
 
     df_subset1 = df[["label"] + [f"feature_{i}" for i in range(30)]]
-    df_subset1.to_csv("/home/chinasa/python_projects/auto_encoder/outputs/csvs/idiap2/cleaned/drit_features_01_30.csv", index=False)
+    df_subset1.to_csv("/home/chinasa/python_projects/auto_encoder/outputs/csvs/plus/noisy/star_features_01_30.csv", index=False)
 
     df_subset2 = df[["label"] + [f"feature_{i}" for i in range(10)]]
-    df_subset2.to_csv("/home/chinasa/python_projects/auto_encoder/outputs/csvs/idiap2//cleaned/drit_features_01_10.csv", index=False)
+    df_subset2.to_csv("/home/chinasa/python_projects/auto_encoder/outputs/csvs/plus/noisy/star_features_01_10.csv", index=False)
 
     df_subset3 = df[["label"] + [f"feature_{i}" for i in range(10, 20)]]
-    df_subset3.to_csv("/home/chinasa/python_projects/auto_encoder/outputs/csvs/idiap2/cleaned/drit_features_11_20.csv", index=False)
+    df_subset3.to_csv("/home/chinasa/python_projects/auto_encoder/outputs/csvs/plus/noisy/star_features_11_20.csv", index=False)
 
     df_subset4 = df[["label"] + [f"feature_{i}" for i in range(20, 30)]]
-    df_subset4.to_csv("/home/chinasa/python_projects/auto_encoder/outputs/csvs/idiap2/cleaned/drit_features_21_30.csv", index=False)
+    df_subset4.to_csv("/home/chinasa/python_projects/auto_encoder/outputs/csvs/plus/noisy/star_features_21_30.csv", index=False)
 
     print("Feature extraction and export completed.")
